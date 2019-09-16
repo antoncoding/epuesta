@@ -30,12 +30,12 @@ contract GameBet is ChainlinkClient, Ownable {
         setPublicChainlinkToken();
     }
 
-    function initCheckMatchScheduled(address _oracle, string _jobId, string _apiKey)
-        public
-    {
+    function initCheckMatchScheduled(address _oracle, string _jobId, string _apiKey) public {
         require(!matchScheduled, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackCheckMatchScheduled.selector);
-        req.add("url", "https://apiv2.apifootball.com/");
+        req.add("match_id", matchId); // required by getMatch
+        req.add("api_key", apiKey);
+        req.add("copyPath", "1.match_status");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
