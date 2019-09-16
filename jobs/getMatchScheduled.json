@@ -20,7 +20,13 @@
           "path": [ "0", "match_status"] 
         }
     },
-    { "type": "EthBytes32" },
-    { "type": "EthTx" }
+    {
+        "type":"Compare",
+        "param":{
+            "operator":"eq",
+            "value":""
+        }
+    },
+    { "type": "EthBool" }
   ]
 }
