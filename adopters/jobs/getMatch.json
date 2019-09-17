@@ -14,19 +14,6 @@
         "queryParams": "action=get_events&APIkey=15fe3e60cc53879ea6ab6a0964838e35ae7565cc2a16e4dbce6289bd4dbd85d9"
       }
     },
-    {
-      "type": "JSONParse",
-      "params": { 
-          "path": [ "0", "match_status"] 
-        }
-    },
-    {
-        "type":"Compare",
-        "param":{
-            "operator":"eq",
-            "value":""
-        }
-    },
-    { "type": "EthBool" }
+    { "type": "EthBytes32" }
   ]
 }
