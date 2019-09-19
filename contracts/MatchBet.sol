@@ -4,7 +4,7 @@ import "./chainlink/ChainlinkClient.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
-contract GameBet is ChainlinkClient, Ownable {
+contract MatchSkeleton is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
     string public apiEndpoint = "https://apiv2.apifootball.com/";
     string public matchId;
@@ -15,7 +15,7 @@ contract GameBet is ChainlinkClient, Ownable {
     bool public matchStarted = false;
     bool public matchFinished = false;
 
-    string public score;
+    mapping(address => uint256[3]) betRecord;
 
     event CheckMatchScheduled (
         bytes32 indexed _requestId,
@@ -76,9 +76,11 @@ contract GameBet is ChainlinkClient, Ownable {
      * @dev bet with Ether
      * @param _betType 0: homeTeam, 1: awayTeam, 2: draw
      */
-    function bet(uint256 _betType) public payable {
+    function bet(uint8 _betType) public payable {
         require(matchScheduled, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
+        require(_betType < 3, "Invalid betType");
+        betRecord[msg.sender][_betType] += msg.value;
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
