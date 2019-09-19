@@ -27,7 +27,7 @@ contract GameBet is ChainlinkClient, Ownable {
         bool _started
     );
 
-    constructor(string _matchId, string _homeTeam, string _awayTeam){
+    constructor(string _matchId, string _homeTeam, string _awayTeam) public {
         matchId = _matchId;
         homeTeam = _homeTeam;
         awayTeam = _awayTeam;

@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@ensdomains/buffer": "0.0.10",
-    "openzeppelin-solidity": "^2.3.0",
+    "openzeppelin-solidity": "^2.1.0",
     "solidity-cborutils": "^1.0.5"
   },
   "devDependencies": {},
