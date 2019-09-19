@@ -4,7 +4,7 @@ import "./chainlink/ChainlinkClient.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
-contract MatchSkeleton is ChainlinkClient, Ownable {
+contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
     string public apiEndpoint = "https://apiv2.apifootball.com/";
     string public matchId;
@@ -45,10 +45,7 @@ contract MatchSkeleton is ChainlinkClient, Ownable {
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
-    function callbackMatchScheduled(bytes32 _requestId, bool _scheduled)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
+    function callbackMatchScheduled(bytes32 _requestId, bool _scheduled) public recordChainlinkFulfillment(_requestId) {
         matchScheduled = _scheduled;
         emit CheckMatchScheduled(_requestId, _scheduled);
     }
@@ -64,10 +61,7 @@ contract MatchSkeleton is ChainlinkClient, Ownable {
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
-    function callbackMatchStarted(bytes32 _requestId, bool _started)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
+    function callbackMatchStarted(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
         matchStarted = _started;
         emit MatchStarted(_requestId, _started);
     }
