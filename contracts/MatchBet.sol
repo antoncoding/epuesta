@@ -28,6 +28,9 @@ contract GameBet is ChainlinkClient, Ownable {
         setPublicChainlinkToken();
     }
 
+    /**
+     * @dev call after contract is funded with LINK.
+     */
     function initCheckMatchScheduled(address _oracle, string _jobId) public {
         require(!matchScheduled, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackCheckMatchScheduled.selector);
