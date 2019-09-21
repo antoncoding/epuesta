@@ -86,7 +86,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
      * @param _result 0,1,2
      */
     function callbackMatchResult(bytes32 _requestId, uint8 _result) public recordChainlinkFulfillment(_requestId) {
-        require(result < 3, "Invalid result type");
+        require(_result < 3, "Invalid result type");
         finalResult = _result;
         matchFinished = true;
         emit MatchFinished(_requestId, _result);
