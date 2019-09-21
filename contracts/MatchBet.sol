@@ -81,10 +81,6 @@ contract MatchBasic is ChainlinkClient, Ownable {
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
-    /**
-     * @param _requestId
-     * @param _result 0,1,2
-     */
     function callbackMatchResult(bytes32 _requestId, uint8 _result) public recordChainlinkFulfillment(_requestId) {
         require(_result < 3, "Invalid result type");
         finalResult = _result;
