@@ -16,8 +16,12 @@ contract MatchBasic is ChainlinkClient, Ownable {
 
     uint8 finalResult;
 
+    uint256 public ownerTips = 0;
+    uint256 public totalPool = 0;
+    uint256 public sharePerBet = 0;
+
     mapping(address => uint256[3]) betRecord;
-    mapping(uint8 => uint256) typeTotalBet;
+    mapping(uint8 => uint256) typePool;
 
     event CheckMatchScheduled (
         bytes32 indexed _requestId,
@@ -85,6 +89,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(_result < 3, "Invalid result type");
         finalResult = _result;
         matchFinished = true;
+        sharePerBet = totalPool.div(typePool[_result]);
         emit MatchFinished(_requestId, _result);
     }
 
@@ -96,8 +101,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(matchScheduled, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
         require(_betType < 3, "Invalid betType");
-        betRecord[msg.sender][_betType] += msg.value;
-        typeTotalBet[_betType] += msg.value;
+        totalPool.add(msg.value);
+        typePool[_betType].add(msg.value);
+        betRecord[msg.sender][_betType].add(msg.value);
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
