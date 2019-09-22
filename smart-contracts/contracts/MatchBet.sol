@@ -13,8 +13,14 @@ contract MatchBasic is ChainlinkClient, Ownable {
     bool public matchScheduled = false;
     bool public matchStarted = false;
     bool public matchFinished = false;
+    bool public matchFinaled = false;
+
+    bool public homeTeamScoreRecorded = false;
+    bool public awayTeamScoreRecorded = false;
 
     uint8 finalResult;
+    uint8 homeTeamScore;
+    uint8 awayTeamScore;
 
     uint256 public ownerTips = 0;
     uint256 public totalPool = 0;
@@ -33,8 +39,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         bool _started
     );
 
-    event MatchFinished(
-        bytes32 indexed _requestId,
+    event MatchFinaled(
+        uint8 _homeTeamScore,
+        uint8 _awayTeamScore,
         uint8 _type
     );
 
@@ -52,7 +59,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchScheduled, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchScheduled.selector);
         req.add("match_id", matchId); // required by getMatch
-        req.add("copyPath", "1.match_status");
+        req.add("copyPath", "match_status");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -68,7 +75,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchStarted, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId); // required by getMatch
-        req.add("copyPath", "1.match_status");
+        req.add("copyPath", "match_status");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -77,20 +84,44 @@ contract MatchBasic is ChainlinkClient, Ownable {
         emit MatchStarted(_requestId, _started);
     }
 
-    function requestMatchResult(address _oracle, string _jobId) public {
+    function requestHometeamScore(address _oracle, string _jobId) public {
         require(!matchFinished, "Match result already updated.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchResult.selector);
-        req.add("match_id", matchId); // required by getMatch
-        req.add("copyPath", "1.match_status");
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackHometeamScore.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_hometeam_score");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
-    function callbackMatchResult(bytes32 _requestId, uint8 _result) public recordChainlinkFulfillment(_requestId) {
-        require(_result < 3, "Invalid result type");
-        finalResult = _result;
-        matchFinished = true;
-        sharePerBet = totalPool.div(typePool[_result]);
-        emit MatchFinished(_requestId, _result);
+    function requestAwayteamScore(address _oracle, string _jobId) public {
+        require(!matchFinished, "Match result already updated.");
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackAwayteamScore.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_awayteam_score");
+        sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
+    }
+
+    function callbackHometeamScore(bytes32 _requestId, uint8 _score) public recordChainlinkFulfillment(_requestId) {
+        homeTeamScore = _score;
+        homeTeamScoreRecorded = true;
+    }
+
+    function callbackAwayteamScore(bytes32 _requestId, uint8 _score) public recordChainlinkFulfillment(_requestId) {
+        awayTeamScore = _score;
+        awayTeamScoreRecorded = true;
+    }
+
+    function matchResultFinal() public {
+        require(!matchFinaled, "Match Finaled");
+        require(homeTeamScoreRecorded && awayTeamScoreRecorded, "Team Scores not confirmed.");
+        if (homeTeamScore > awayTeamScore)
+            finalResult = 0;
+        else if (homeTeamScore < awayTeamScore)
+            finalResult = 1;
+        else
+            finalResult = 2;
+
+        sharePerBet = totalPool.div(typePool[finalResult]);
+        emit MatchFinaled(homeTeamScore, awayTeamScore, finalResult);
     }
 
     /**
@@ -107,7 +138,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
     }
 
     function withdrawPrize() public {
-        require(matchFinished, "Match result not confirmed.");
+        require(matchFinaled, "Match result not confirmed.");
         require(betRecord[msg.sender][finalResult] > 0, "Nothing to withdraw.");
         uint256 amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
         betRecord[msg.sender][finalResult] = 0;
