@@ -106,6 +106,14 @@ contract MatchBasic is ChainlinkClient, Ownable {
         betRecord[msg.sender][_betType].add(msg.value);
     }
 
+    function withdrawPrize() public {
+        require(matchFinished, "Match result not confirmed.");
+        require(betRecord[msg.sender][finalResult] > 0, "Nothing to withdraw.");
+        uint256 amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
+        betRecord[msg.sender][finalResult] = 0;
+        msg.sender.transfer(amount);
+    }
+
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
