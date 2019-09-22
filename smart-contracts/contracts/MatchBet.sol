@@ -59,6 +59,8 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchScheduled, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchScheduled.selector);
         req.add("match_id", matchId); // required by getMatch
+        req.add("value", "");
+        req.add("operator", "eq");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -74,6 +76,8 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchStarted, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId); // required by getMatch
+        req.add("value", "Started");
+        req.add("operator", "eq");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -82,15 +86,29 @@ contract MatchBasic is ChainlinkClient, Ownable {
         emit MatchStarted(_requestId, _started);
     }
 
+    function informMatchFinished(address _oracle, string _jobId) public {
+        require(!matchStarted, "Match already scheduled.");
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchFinished.selector);
+        req.add("match_id", matchId); // required by getMatch
+        req.add("value", "Finished");
+        req.add("operator", "eq");
+        sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
+    }
+
+    function callbackMatchFinished(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
+        matchStarted = _started;
+        emit MatchStarted(_requestId, _started);
+    }
+
     function requestHometeamScore(address _oracle, string _jobId) public {
-        require(!matchFinished, "Home team score already updated.");
+        require(matchFinished && !homeTeamScoreRecorded, "Home team score already updated.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackHometeamScore.selector);
         req.add("match_id", matchId);
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
     function requestAwayteamScore(address _oracle, string _jobId) public {
-        require(!matchFinished, "Away team score already updated.");
+        require(matchFinished && !awayTeamScoreRecorded, "Away team score already updated.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackAwayteamScore.selector);
         req.add("match_id", matchId);
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
