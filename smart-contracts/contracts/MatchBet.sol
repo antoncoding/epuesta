@@ -59,8 +59,6 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchScheduled, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchScheduled.selector);
         req.add("match_id", matchId); // required by getMatch
-        req.add("value", "");
-        req.add("operator", "eq");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -76,8 +74,6 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchStarted, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId); // required by getMatch
-        req.add("value", "Started");
-        req.add("operator", "eq");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
@@ -90,8 +86,6 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchStarted, "Match already scheduled.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchFinished.selector);
         req.add("match_id", matchId); // required by getMatch
-        req.add("value", "Finished");
-        req.add("operator", "eq");
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
