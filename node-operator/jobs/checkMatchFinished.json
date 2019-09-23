@@ -1,0 +1,27 @@
+{
+  "initiators": [
+    {
+      "type": "RunLog",
+      "params": { "address": "0x51DE85B0cD5B3684865ECfEedfBAF12777cd0Ff8" }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "getFootballMatch"
+    },
+    {
+      "type": "JSONParse",
+      "params": { "path": [ "match_status" ] }
+    },
+    {
+      "type": "Compare",
+      "params":{
+        "operator": "eq",
+        "value": "Finished"
+      }
+    },
+    {
+      "type": "EthBool"
+    }
+  ]
+}

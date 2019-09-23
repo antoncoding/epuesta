@@ -1,7 +1,7 @@
 let request = require('request');
 
 /**
- * Get specific match detail
+ * Get specific match detail from https://apifootball.com/
  * @param {{body:{data:{match_id:string}, id:string}}} req
  **/
 exports.matchAdapter = (req, res) => {
