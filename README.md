@@ -2,7 +2,7 @@
 
 Epuesta is a decentralized betting broker framework built with ChainLink.
 
-![chainlinkImg]](https://blog.chain.link/content/images/size/w2000/2019/07/Growing-Chainlink--1-.png)
+![chainlinkImg](https://blog.chain.link/content/images/size/w2000/2019/07/Growing-Chainlink--1-.png)
 
 Everyone can create a new contract with our framework on Ethereum as a broker for a specific match, you can customize your need and offer different deals with the contract.
 
