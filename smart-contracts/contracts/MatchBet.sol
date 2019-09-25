@@ -6,6 +6,13 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
+
+    string constant private HOMETEAM_SCORE_JOBID = "";
+    string constant private AWAY_SCORE_JOBID = "";
+    string constant private CHECK_SCHEDULED_JOBID = "";
+    string constant private CHECK_STARTED_JOBID = "";
+    string constant private CHECK_FINISHED_JOBID = "";
+
     string public matchId;
     string public homeTeam;
     string public awayTeam;
@@ -55,9 +62,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
     /**
      * @dev call after contract is funded with LINK.
      */
-    function initCheckMatchScheduled(address _oracle, string _jobId) public {
+    function initCheckMatchScheduled(address _oracle) public {
         require(!matchScheduled, "Match already scheduled.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchScheduled.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(CHECK_SCHEDULED_JOBID), this, this.callbackMatchScheduled.selector);
         req.add("match_id", matchId); // required by getMatch
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
@@ -70,9 +77,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
     /**
      * @dev triggered after the game kick off.
      */
-    function informMatchStarted(address _oracle, string _jobId) public {
+    function informMatchStarted(address _oracle) public {
         require(!matchStarted, "Match already scheduled.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchStarted.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(CHECK_STARTED_JOBID), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId); // required by getMatch
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
@@ -82,9 +89,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         emit MatchStarted(_requestId, _started);
     }
 
-    function informMatchFinished(address _oracle, string _jobId) public {
+    function informMatchFinished(address _oracle) public {
         require(!matchStarted, "Match already scheduled.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackMatchFinished.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(CHECK_FINISHED_JOBID), this, this.callbackMatchFinished.selector);
         req.add("match_id", matchId); // required by getMatch
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
@@ -94,16 +101,16 @@ contract MatchBasic is ChainlinkClient, Ownable {
         emit MatchStarted(_requestId, _started);
     }
 
-    function requestHometeamScore(address _oracle, string _jobId) public {
+    function requestHometeamScore(address _oracle) public {
         require(matchFinished && !homeTeamScoreRecorded, "Home team score already updated.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackHometeamScore.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(HOMETEAM_SCORE_JOBID), this, this.callbackHometeamScore.selector);
         req.add("match_id", matchId);
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
 
-    function requestAwayteamScore(address _oracle, string _jobId) public {
+    function requestAwayteamScore(address _oracle) public {
         require(matchFinished && !awayTeamScoreRecorded, "Away team score already updated.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, this.callbackAwayteamScore.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(AWAY_SCORE_JOBID), this, this.callbackAwayteamScore.selector);
         req.add("match_id", matchId);
         sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     }
