@@ -13,10 +13,10 @@ contract MatchBasic is ChainlinkClient, Ownable {
     string public matchId;
     string public homeTeam;
     string public awayTeam;
-
     address public oracle;
 
-    bool public matchScheduled = false;
+    bool public homeTeamVerified = false;
+    bool public awayTeamVerified = false;
     bool public matchStarted = false;
     bool public matchFinished = false;
     bool public matchFinaled = false;
@@ -35,9 +35,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
     mapping(address => uint256[3]) betRecord;
     mapping(uint8 => uint256) typePool;
 
-    event CheckMatchScheduled (
+    event MatchInfoVerified (
         bytes32 indexed _requestId,
-        bool scheduled
+        string field
     );
 
     event MatchStarted(
@@ -62,19 +62,37 @@ contract MatchBasic is ChainlinkClient, Ownable {
     /**
      * @dev call after contract is funded with LINK.
      */
-    function initCheckMatchScheduled() public {
-        require(!matchScheduled, "Match already scheduled.");
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchScheduled.selector);
+    function verifyHomeTeam() public {
+        require(!homeTeamVerified, "Home team info already verified with oracle");
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackVerifyHomeTeam.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_status");
-        req.add("operator", "");
-        req.add("value", "1");
+        req.add("copyPath", "match_hometeam_name");
+        req.add("operator", "eq");
+        req.add("value", homeTeam);
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
-    function callbackMatchScheduled(bytes32 _requestId, bool _scheduled) public recordChainlinkFulfillment(_requestId) {
-        matchScheduled = _scheduled;
-        emit CheckMatchScheduled(_requestId, _scheduled);
+    function callbackVerifyHomeTeam(bytes32 _requestId, bool _verified) public recordChainlinkFulfillment(_requestId) {
+        homeTeamVerified = _verified;
+        emit MatchInfoVerified(_requestId, "Home Team Name");
+    }
+
+    /**
+     * @dev call after contract is funded with LINK.
+     */
+    function verifyAwayTeam() public {
+        require(!awayTeamVerified, "Away team info already verified with oracle");
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackVerifyAwayTeam.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_awayteam_name");
+        req.add("operator", "eq");
+        req.add("value", awayTeam);
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
+    }
+
+    function callbackVerifyAwayTeam(bytes32 _requestId, bool _verified) public recordChainlinkFulfillment(_requestId) {
+        awayTeamVerified = _verified;
+        emit MatchInfoVerified(_requestId, "Away Team Name");
     }
 
     /**
@@ -154,7 +172,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
      * @param _betType 0: homeTeam, 1: awayTeam, 2: draw
      */
     function bet(uint8 _betType) public payable {
-        require(matchScheduled, "Match info not confirmed yet.");
+        require(homeTeamVerified && awayTeamVerified, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
         require(_betType < 3, "Invalid betType");
         totalPool.add(msg.value);
