@@ -8,7 +8,7 @@ Everyone can create a new contract with our framework on Ethereum as a broker fo
 
 The finality of a match is provided by Chainlink nodes in an decentralized manner, and result is distributed fairly with the contract.
 
-## Node Operators
+## Usage for Node Operators
 
 ### New Bridge
 
@@ -19,8 +19,6 @@ Run it yourself or use our heroku server to create a new **getFootballMatch** Br
 
 ![New Bridge](https://i.imgur.com/ZOisvWk.png)
 
-## Node Operators
-
-### Jobs
+### Add Jobs
 
 ## Contract Creator
