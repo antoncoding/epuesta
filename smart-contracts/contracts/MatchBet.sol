@@ -32,8 +32,8 @@ contract MatchBasic is ChainlinkClient, Ownable {
     uint256 public totalPool = 0;
     uint256 public sharePerBet = 0;
 
-    mapping(address => uint256[3]) betRecord;
-    mapping(uint8 => uint256) typePool;
+    mapping(address => uint256[3]) public betRecord;
+    mapping(uint8 => uint256) public typePool;
 
     event MatchInfoVerified (
         bytes32 indexed _requestId,
@@ -102,7 +102,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
      * @dev triggered after the game kick off.
      */
     function informMatchStarted() public {
-        require(!matchStarted, "Match already scheduled.");
+        require(!matchStarted, "Match already started.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId);
         req.add("copyPath", "match_live");
