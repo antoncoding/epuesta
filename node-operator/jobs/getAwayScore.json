@@ -10,11 +10,14 @@
       "type": "getFootballMatch"
     },
     {
-      "type": "JSONParse",
-      "params": { "path": [ "match_awayteam_score" ] }
+      "type": "copy",
+      "params": { "copyPath": [ "match_awayteam_score" ] }
     },
     {
       "type": "EthUint256"
+    },
+    {
+      "type": "EthTx"
     }
   ]
 }
