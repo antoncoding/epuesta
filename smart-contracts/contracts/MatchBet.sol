@@ -7,11 +7,8 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
 
-    string constant private HOMETEAM_SCORE_JOBID = "";
-    string constant private AWAYTEAM_SCORE_JOBID = "";
-    string constant private CHECK_SCHEDULED_JOBID = "";
-    string constant private CHECK_STARTED_JOBID = "";
-    string constant private CHECK_FINISHED_JOBID = "";
+    string constant private MATCH_SCORE_JOBID = "56a6e4ab723d44b08089f9fb61ac3cb3";
+    string constant private MATCH_STATUS_JOBID = "233cd6129087482ebb9fb0e79045a5b6";
 
     string public matchId;
     string public homeTeam;
@@ -67,7 +64,12 @@ contract MatchBasic is ChainlinkClient, Ownable {
      */
     function initCheckMatchScheduled() public {
         require(!matchScheduled, "Match already scheduled.");
-        requestFootballOracle(CHECK_SCHEDULED_JOBID, this.callbackMatchScheduled.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchScheduled.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_status");
+        req.add("operator", "");
+        req.add("value", "1");
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function callbackMatchScheduled(bytes32 _requestId, bool _scheduled) public recordChainlinkFulfillment(_requestId) {
@@ -80,7 +82,12 @@ contract MatchBasic is ChainlinkClient, Ownable {
      */
     function informMatchStarted() public {
         require(!matchStarted, "Match already scheduled.");
-        requestFootballOracle(CHECK_STARTED_JOBID, this.callbackMatchStarted.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchStarted.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_live");
+        req.add("operator", "eq");
+        req.add("value", "1");
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function callbackMatchStarted(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
@@ -89,8 +96,12 @@ contract MatchBasic is ChainlinkClient, Ownable {
     }
 
     function informMatchFinished() public {
-        require(!matchStarted, "Match Not started.");
-        requestFootballOracle(CHECK_FINISHED_JOBID, this.callbackMatchFinished.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchFinished.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_status");
+        req.add("operator", "eq");
+        req.add("value", "Finished");
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function callbackMatchFinished(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
@@ -100,12 +111,18 @@ contract MatchBasic is ChainlinkClient, Ownable {
 
     function requestHometeamScore() public {
         require(matchFinished && !homeTeamScoreRecorded, "Home team score already updated.");
-        requestFootballOracle(HOMETEAM_SCORE_JOBID, this.callbackHometeamScore.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_SCORE_JOBID), this, this.callbackHometeamScore.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_hometeam_score");
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function requestAwayteamScore() public {
         require(matchFinished && !awayTeamScoreRecorded, "Away team score already updated.");
-        requestFootballOracle(AWAYTEAM_SCORE_JOBID, this.callbackAwayteamScore.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_SCORE_JOBID), this, this.callbackAwayteamScore.selector);
+        req.add("match_id", matchId);
+        req.add("copyPath", "match_awayteam_score");
+        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function callbackHometeamScore(bytes32 _requestId, uint8 _score) public recordChainlinkFulfillment(_requestId) {
@@ -151,12 +168,6 @@ contract MatchBasic is ChainlinkClient, Ownable {
         uint256 amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
         betRecord[msg.sender][finalResult] = 0;
         msg.sender.transfer(amount);
-    }
-
-    function requestFootballOracle (string _jobId, bytes4 _callbackFunctionSignature) internal {
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), this, _callbackFunctionSignature);
-        req.add("match_id", matchId);
-        sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
