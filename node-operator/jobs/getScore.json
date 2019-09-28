@@ -10,8 +10,7 @@
       "type": "getFootballMatch"
     },
     {
-      "type": "copy",
-      "params": { "copyPath": [ "match_awayteam_score" ] }
+      "type": "copy"
     },
     {
       "type": "EthUint256"
