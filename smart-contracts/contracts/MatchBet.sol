@@ -41,8 +41,11 @@ contract MatchBasic is ChainlinkClient, Ownable {
     );
 
     event MatchStarted(
-        bytes32 indexed _requestId,
-        bool _started
+        bytes32 indexed _requestId
+    );
+
+    event MatchFinished(
+        bytes32 indexed _requestId
     );
 
     event MatchFinaled(
@@ -109,8 +112,10 @@ contract MatchBasic is ChainlinkClient, Ownable {
     }
 
     function callbackMatchStarted(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
-        matchStarted = _started;
-        emit MatchStarted(_requestId, _started);
+        if (_started) {
+            matchStarted = _started;
+            emit MatchStarted(_requestId);
+        }
     }
 
     function informMatchFinished() public {
@@ -122,9 +127,11 @@ contract MatchBasic is ChainlinkClient, Ownable {
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
-    function callbackMatchFinished(bytes32 _requestId, bool _started) public recordChainlinkFulfillment(_requestId) {
-        matchStarted = _started;
-        emit MatchStarted(_requestId, _started);
+    function callbackMatchFinished(bytes32 _requestId, bool _finished) public recordChainlinkFulfillment(_requestId) {
+        if (_finished) {
+            matchFinished = _finished;
+            emit MatchFinished(_requestId);
+        }
     }
 
     function requestHometeamScore() public {
@@ -175,9 +182,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(homeTeamVerified && awayTeamVerified, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
         require(_betType < 3, "Invalid betType");
-        totalPool.add(msg.value);
-        typePool[_betType].add(msg.value);
-        betRecord[msg.sender][_betType].add(msg.value);
+        totalPool = totalPool.add(msg.value);
+        typePool[_betType] = typePool[_betType].add(msg.value);
+        betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(msg.value);
     }
 
     function withdrawPrize() public {
