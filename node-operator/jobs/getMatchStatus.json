@@ -1,0 +1,22 @@
+{
+    "initiators": [
+      {
+        "type": "RunLog",
+        "params": { "address": "YOUR_ORACLE_ADDRESS" }
+      }
+    ],
+    "tasks": [
+      {
+        "type": "getFootballMatch"
+      },
+      {
+        "type": "copy"
+      },
+      {
+        "type": "Compare"
+      },
+      {
+        "type": "EthBool"
+      }
+    ]
+  }
