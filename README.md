@@ -8,9 +8,16 @@ Everyone can create a new contract with our framework on Ethereum as a broker fo
 
 The finality of a match is provided by Chainlink nodes in an decentralized manner, and result is distributed fairly with the contract.
 
-## External Adopters
+## Node Operators
 
-* Football API - Currently using [apifootball](https://apifootball.com/documentation/) as our data source.
+### New Bridge
+
+Currently using [Apifootball](https://apifootball.com/documentation/) as our data source.
+A sample RESTful API external adopter can be found at [this repo](https://github.com/antoncoding/apifootball-adopter). 
+
+Run it yourself or use our heroku server to create a new **getFootballMatch** Bridge.
+
+![New Bridge](https://i.imgur.com/ZOisvWk.png)
 
 ## Node Operators
 
