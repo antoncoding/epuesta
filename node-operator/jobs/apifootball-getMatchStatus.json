@@ -7,16 +7,19 @@
     ],
     "tasks": [
       {
-        "type": "getFootballMatch"
+        "type": "apifootball"
       },
       {
         "type": "copy"
       },
       {
-        "type": "Compare"
+        "type": "compare"
       },
       {
-        "type": "EthBool"
+        "type": "ethbool"
+      },
+      {
+        "type": "ethtx"
       }
     ]
   }

@@ -7,7 +7,7 @@
   ],
   "tasks": [
     {
-      "type": "getFootballMatch"
+      "type": "apifootball"
     },
     {
       "type": "copy"

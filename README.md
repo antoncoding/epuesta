@@ -10,10 +10,10 @@ The finality of a match is provided by Chainlink nodes in an decentralized manne
 
 ## Usage for Node Operators
 
-### New Bridge
+### Add New Bridge - apifootball
 
 Currently using [Apifootball](https://apifootball.com/documentation/) as our data source.
-A sample RESTful API external adopter can be found at [this repo](https://github.com/antoncoding/apifootball-adopter). 
+A sample RESTful API external adopter can be found at [this repo](https://github.com/antoncoding/apifootball-adopter).
 
 Run it yourself or use our heroku server to create a new **getFootballMatch** Bridge.
 

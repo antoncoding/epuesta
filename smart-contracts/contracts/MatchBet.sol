@@ -7,8 +7,8 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
 
-    string constant private MATCH_SCORE_JOBID = "56a6e4ab723d44b08089f9fb61ac3cb3";
-    string constant private MATCH_STATUS_JOBID = "233cd6129087482ebb9fb0e79045a5b6";
+    string constant private MATCH_SCORE_JOBID = "eec87c8a809842bbb5aff539f93bbbb9";
+    string constant private MATCH_STATUS_JOBID = "2ca3a3c228f94173a0e6bf643d7ee219";
 
     string public matchId;
     string public homeTeam;
