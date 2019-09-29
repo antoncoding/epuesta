@@ -19,14 +19,14 @@ contract MatchBasic is ChainlinkClient, Ownable {
     bool public awayTeamVerified = false;
     bool public matchStarted = false;
     bool public matchFinished = false;
-    bool public matchFinaled = false;
+    bool public matchResultFinalized = false;
 
     bool public homeTeamScoreRecorded = false;
     bool public awayTeamScoreRecorded = false;
 
-    uint8 finalResult;
-    uint8 homeTeamScore;
-    uint8 awayTeamScore;
+    uint8 public finalResult;
+    uint8 public homeTeamScore;
+    uint8 public awayTeamScore;
 
     uint256 public ownerTips = 0;
     uint256 public totalPool = 0;
@@ -101,7 +101,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
     /**
      * @dev triggered after the game kick off.
      */
-    function informMatchStarted() public {
+    function verifyMatchStarted() public {
         require(!matchStarted, "Match already started.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId);
@@ -118,7 +118,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         }
     }
 
-    function informMatchFinished() public {
+    function verifyMatchFinished() public {
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchFinished.selector);
         req.add("match_id", matchId);
         req.add("copyPath", "match_status");
@@ -160,8 +160,8 @@ contract MatchBasic is ChainlinkClient, Ownable {
         awayTeamScoreRecorded = true;
     }
 
-    function matchResultFinal() public {
-        require(!matchFinaled, "Match Finaled");
+    function finalizeMatch() public {
+        require(!matchResultFinalized, "Match Finaled");
         require(homeTeamScoreRecorded && awayTeamScoreRecorded, "Team Scores not confirmed.");
         if (homeTeamScore > awayTeamScore)
             finalResult = 0;
@@ -170,6 +170,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         else
             finalResult = 2;
 
+        matchResultFinalized = true;
         sharePerBet = totalPool.div(typePool[finalResult]);
         emit MatchFinaled(homeTeamScore, awayTeamScore, finalResult);
     }
@@ -188,7 +189,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
     }
 
     function withdrawPrize() public {
-        require(matchFinaled, "Match result not confirmed.");
+        require(matchResultFinalized, "Match result not confirmed.");
         require(betRecord[msg.sender][finalResult] > 0, "Nothing to withdraw.");
         uint256 amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
         betRecord[msg.sender][finalResult] = 0;
