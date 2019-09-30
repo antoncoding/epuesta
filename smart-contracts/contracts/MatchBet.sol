@@ -182,13 +182,14 @@ contract MatchBasic is ChainlinkClient, Ownable {
      * @dev bet with Ether
      * @param _betType 0: homeTeam, 1: awayTeam, 2: draw
      */
-    function bet(uint8 _betType) public payable {
+    function bet(uint8 _betType, uint256 _amount) public payable {
         require(homeTeamVerified && awayTeamVerified, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
         require(_betType < 3, "Invalid betType");
-        totalPool = totalPool.add(msg.value);
-        typePool[_betType] = typePool[_betType].add(msg.value);
-        betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(msg.value);
+        betToken.transferFrom(msg.sender, this, _amount);
+        totalPool = totalPool.add(_amount);
+        typePool[_betType] = typePool[_betType].add(_amount);
+        betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(_amount);
     }
 
     function withdrawPrize() public {
