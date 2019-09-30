@@ -182,22 +182,23 @@ contract MatchBasic is ChainlinkClient, Ownable {
      * @dev bet with Ether
      * @param _betType 0: homeTeam, 1: awayTeam, 2: draw
      */
-    function bet(uint8 _betType, uint256 _amount) public payable {
+    function bet(uint8 _betType, uint256 _amount) public {
         require(homeTeamVerified && awayTeamVerified, "Match info not confirmed yet.");
         require(!matchStarted, "Game has already started");
         require(_betType < 3, "Invalid betType");
-        betToken.transferFrom(msg.sender, this, _amount);
-        totalPool = totalPool.add(_amount);
-        typePool[_betType] = typePool[_betType].add(_amount);
-        betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(_amount);
+        if (betToken.transferFrom(msg.sender, this, _amount)) {
+            totalPool = totalPool.add(_amount);
+            typePool[_betType] = typePool[_betType].add(_amount);
+            betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(_amount);
+        }
     }
 
     function withdrawPrize() public {
         require(matchResultFinalized, "Match result not confirmed.");
         require(betRecord[msg.sender][finalResult] > 0, "Nothing to withdraw.");
-        uint256 amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
+        uint256 _amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
         betRecord[msg.sender][finalResult] = 0;
-        msg.sender.transfer(amount);
+        betToken.transfer(msg.sender, _amount);
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
