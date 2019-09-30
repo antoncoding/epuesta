@@ -2,10 +2,12 @@ pragma solidity 0.4.24;
 
 import "./chainlink/ChainlinkClient.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 
 contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
+    IERC20 betToken;
 
     string constant private MATCH_SCORE_JOBID = "eec87c8a809842bbb5aff539f93bbbb9";
     string constant private MATCH_STATUS_JOBID = "2ca3a3c228f94173a0e6bf643d7ee219";
@@ -54,12 +56,13 @@ contract MatchBasic is ChainlinkClient, Ownable {
         uint8 _type
     );
 
-    constructor(string _matchId, string _homeTeam, string _awayTeam, address _oracle) public {
+    constructor(string _matchId, string _homeTeam, string _awayTeam, address _oracle, address _betToken) public {
         matchId = _matchId;
         homeTeam = _homeTeam;
         awayTeam = _awayTeam;
         oracle = _oracle;
         setPublicChainlinkToken();
+        betToken = IERC20(_betToken);
     }
 
     /**
