@@ -56,6 +56,16 @@ contract MatchBasic is ChainlinkClient, Ownable {
         uint8 _type
     );
 
+    event Bet(
+        address indexed _address,
+        uint256 _amount
+    );
+
+    event Withdraw(
+        address indexed _address,
+        uint256 _amount
+    );
+
     constructor(string _matchId, string _homeTeam, string _awayTeam, address _oracle, address _betToken) public {
         matchId = _matchId;
         homeTeam = _homeTeam;
@@ -190,6 +200,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
             totalPool = totalPool.add(_amount);
             typePool[_betType] = typePool[_betType].add(_amount);
             betRecord[msg.sender][_betType] = betRecord[msg.sender][_betType].add(_amount);
+            emit Bet(msg.sender, _amount);
         }
     }
 
@@ -198,7 +209,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(betRecord[msg.sender][finalResult] > 0, "Nothing to withdraw.");
         uint256 _amount = betRecord[msg.sender][finalResult].mul(sharePerBet);
         betRecord[msg.sender][finalResult] = 0;
-        betToken.transfer(msg.sender, _amount);
+        if (betToken.transfer(msg.sender, _amount)) {
+            emit Withdraw(msg.sender, _amount);
+        }
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
