@@ -34,3 +34,29 @@ The job specs can be found in `jobs/`
 ![new job](https://i.imgur.com/2YcYTgh.png)
 
 ## Contract Creator
+
+### Request Team Score
+
+```solidity
+Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_SCORE_JOBID), this, this.callbackHometeamScore.selector);
+req.add("match_id", matchId);
+req.add("copyPath", "match_hometeam_score");
+sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
+```
+
+Response in `uint256`
+
+### Verify Match Data
+
+**Check Match Live**
+
+```solidity
+Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchStarted.selector);
+req.add("match_id", matchId);
+req.add("copyPath", "match_live");
+req.add("operator", "eq");
+req.add("value", "1");
+sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
+```
+
+Response in `boolean`
