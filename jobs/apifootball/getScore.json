@@ -7,16 +7,20 @@
   ],
   "tasks": [
     {
-      "type": "apifootball"
+      "type": "apifootball",
+      "confirmations": 0
     },
     {
-      "type": "copy"
+      "type": "copy",
+      "confirmations": 0
     },
     {
-      "type": "EthUint256"
+      "type": "EthUint256",
+      "confirmations": 0
     },
     {
-      "type": "EthTx"
+      "type": "EthTx",
+      "confirmations": 0
     }
   ]
 }

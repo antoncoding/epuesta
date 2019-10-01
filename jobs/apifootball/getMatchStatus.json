@@ -7,19 +7,24 @@
     ],
     "tasks": [
       {
-        "type": "apifootball"
+        "type": "apifootball",
+        "confirmations": 0
       },
       {
-        "type": "copy"
+        "type": "copy",
+        "confirmations": 0
       },
       {
-        "type": "compare"
+        "type": "compare",
+        "confirmations": 0
       },
       {
-        "type": "ethbool"
+        "type": "ethbool",
+        "confirmations": 0
       },
       {
-        "type": "ethtx"
+        "type": "ethtx",
+        "confirmations": 0
       }
     ]
   }
