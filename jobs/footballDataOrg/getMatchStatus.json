@@ -1,0 +1,30 @@
+{
+    "initiators": [
+      {
+        "type": "RunLog",
+        "params": { "address": "YOUR_ORACLE_ADDRESS" }
+      }
+    ],
+    "tasks": [
+      {
+        "type": "football-data-org",
+        "confirmations": 0
+      },
+      {
+        "type": "copy",
+        "confirmations": 0
+      },
+      {
+        "type": "compare",
+        "confirmations": 0
+      },
+      {
+        "type": "ethbool",
+        "confirmations": 0
+      },
+      {
+        "type": "ethtx",
+        "confirmations": 0
+      }
+    ]
+  }

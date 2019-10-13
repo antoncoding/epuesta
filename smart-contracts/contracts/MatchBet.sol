@@ -9,8 +9,8 @@ contract MatchBasic is ChainlinkClient, Ownable {
     uint256 constant private ORACLE_PAYMENT = 1 * LINK;
     IERC20 betToken;
 
-    string constant private MATCH_SCORE_JOBID = "eec87c8a809842bbb5aff539f93bbbb9";
-    string constant private MATCH_STATUS_JOBID = "2ca3a3c228f94173a0e6bf643d7ee219";
+    string constant private MATCH_SCORE_JOBID = "b7e8006ec9154be6a9955ab6666f8344";
+    string constant private MATCH_STATUS_JOBID = "39601fe9fd87466d8846c7cb83b875d2";
 
     string public matchId;
     string public homeTeam;
@@ -82,7 +82,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!homeTeamVerified, "Home team info already verified with oracle");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackVerifyHomeTeam.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_hometeam_name");
+        req.add("copyPath", "match.homeTeam.name");
         req.add("operator", "eq");
         req.add("value", homeTeam);
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
@@ -100,7 +100,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!awayTeamVerified, "Away team info already verified with oracle");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackVerifyAwayTeam.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_awayteam_name");
+        req.add("copyPath", "match.awayTeam.name");
         req.add("operator", "eq");
         req.add("value", awayTeam);
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
@@ -118,9 +118,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(!matchStarted, "Match already started.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchStarted.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_live");
+        req.add("copyPath", "match.status");
         req.add("operator", "eq");
-        req.add("value", "1");
+        req.add("value", "STARTED");
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
@@ -134,9 +134,9 @@ contract MatchBasic is ChainlinkClient, Ownable {
     function verifyMatchFinished() public {
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_STATUS_JOBID), this, this.callbackMatchFinished.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_status");
+        req.add("copyPath", "match.status");
         req.add("operator", "eq");
-        req.add("value", "Finished");
+        req.add("value", "FINISHED");
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
@@ -151,7 +151,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(matchFinished && !homeTeamScoreRecorded, "Home team score already updated.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_SCORE_JOBID), this, this.callbackHometeamScore.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_hometeam_score");
+        req.add("copyPath", "match.score.fullTime.homeTeam");
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
@@ -159,7 +159,7 @@ contract MatchBasic is ChainlinkClient, Ownable {
         require(matchFinished && !awayTeamScoreRecorded, "Away team score already updated.");
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(MATCH_SCORE_JOBID), this, this.callbackAwayteamScore.selector);
         req.add("match_id", matchId);
-        req.add("copyPath", "match_awayteam_score");
+        req.add("copyPath", "match.score.fullTime.awayTeam");
         sendChainlinkRequestTo(oracle, req, ORACLE_PAYMENT);
     }
 
